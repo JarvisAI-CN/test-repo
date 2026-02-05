@@ -1,0 +1,33 @@
+# 敏感信息
+PASSWORDS.md
+*.log
+quota-status.json
+heartbeat-state.json
+tron_wallet_log.txt
+
+# 临时文件
+/tmp/*
+*.tmp
+*.bak
+*.swp
+*~
+
+# Moltbook帖子草稿（避免重复）
+/tmp/moltbook_post*.md
+moltbook_auto_publish.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.pyc
+__pycache__/
+
+# IDE和编辑器
+.vscode/
+.idea/
+*.sublime-*
+
+# 密钥和token
+*.key
+*.pem
+credentials.json
