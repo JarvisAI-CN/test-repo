@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "okx": {
+      "version": "1.1.0",
+      "installedAt": 1770349600818
+    },
+    "desktop-control": {
+      "version": "1.0.0",
+      "installedAt": 1770379313799
+    },
+    "email": {
+      "version": "1.1.0",
+      "installedAt": 1770383409195
+    }
+  }
+}

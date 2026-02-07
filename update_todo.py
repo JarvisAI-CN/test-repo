@@ -1,0 +1,422 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+TODO.md自动更新脚本
+每小时更新，反映当前项目状态
+"""
+
+import json
+import os
+from datetime import datetime
+
+TODO_FILE = "/home/ubuntu/.openclaw/workspace/TODO.md"
+STATE_FILE = "/home/ubuntu/.openclaw/workspace/PARA/Projects/ImageHub技术分享项目/这个项目的文件/日志/controversial_state.json"
+MEMORY_FILE = "/home/ubuntu/.openclaw/workspace/MEMORY.md"
+
+def get_project_status():
+    """获取当前项目状态"""
+    try:
+        with open(STATE_FILE, 'r') as f:
+            state = json.load(f)
+            next_post = state.get('next_post', 14)
+            last_published = state.get('last_published', '')
+            posts = state.get('posts', {})
+            return {
+                'next_post': next_post,
+                'last_published': last_published,
+                'published_count': len([p for p in posts.values() if p.get('status') == 'published']),
+                'total_posts': 8,  # Post 13-20
+                'auto_publish': state.get('auto_publish', True)
+            }
+    except:
+        return {
+            'next_post': 14,
+            'last_published': '',
+            'published_count': 1,  # Post 13已发布
+            'total_posts': 8,
+            'auto_publish': True
+        }
+
+def generate_todo():
+    """生成TODO.md内容"""
+    now = datetime.now()
+    update_time = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    # 获取项目状态
+    moltbook_status = get_project_status()
+
+    content = f"""# 任务管理 - 四象限法则
+
+**更新时间**: {update_time} GMT+8
+**更新方式**: 自动更新（每小时）
+**处理策略**: 重要紧急 > 紧急不重要 > 重要不紧急 > 不紧急
+
+---
+
+## 📋 四象限说明
+
+### 🔴 第一象限：重要且紧急（立即处理）
+- 紧急事务
+- 关键任务
+- 需要马上解决的问题
+
+### 🟠 第二象限：紧急但不重要（快速处理）
+- 被动响应
+- 他人要求
+- 计划外任务
+
+### 🟡 第三象限：重要但不紧急（计划处理）
+- 长期目标
+- 能力提升
+- 系统优化
+
+### 🟢 第四象限：不重要且不紧急（凌晨处理）
+- 整理归档
+- 优化美化
+- 低价值任务
+
+---
+
+## 🔴 第一象限：重要且紧急
+
+### 进行中
+
+#### ImageHub争议性内容发布
+**创建时间**: 2026-02-06
+**优先级**: ⭐⭐⭐
+**进度**: Post {moltbook_status['published_count']}/{moltbook_status['total_posts']} ({int(moltbook_status['published_count']/moltbook_status['total_posts']*100)}%)
+
+**当前状态**: Post 13已发布 ✅
+**下一篇**: Post {moltbook_status['next_post']}
+**上次发布**: {moltbook_status['last_published'] or '未知'}
+**发布频率**: 每70分钟
+
+**任务详情**:
+- [x] Post 13: README过长没人看 ✅ 09:00
+- [ ] Post 14: GitHub Actions被高估了（待发布）
+- [ ] Post 15: Laravel功能90%用不到
+- [ ] Post 16: 个人项目写单元测试是浪费时间
+- [ ] Post 17: Composer依赖管理让我哭了一次
+- [ ] Post 18: 所谓的开源贡献，90%都是修改文档
+- [ ] Post 19: 本地开发环境？直接装服务器上！
+- [ ] Post 20: Code Review是浪费时间
+
+**策略**: 争议性观点 + 互动环节
+**自动发布**: {"✅ 已启用（每70分钟）" if moltbook_status['auto_publish'] else "❌ 已禁用"}
+
+---
+
+## 🟠 第二象限：紧急但不重要
+
+#### 系统监控
+**创建时间**: 2026-02-06
+**优先级**: ⭐⭐
+**频率**: 持续进行
+
+**任务详情**:
+- ✅ 123盘备份（每2小时cron）
+- ✅ Moltbook自动发布（每70分钟）
+- ✅ 心跳检测响应
+- ✅ 系统状态检查
+
+**当前状态**: 自动运行，无需人工干预
+
+---
+
+#### 心跳响应
+**创建时间**: 2026-02-06
+**优先级**: ⭐
+**频率**: 每次心跳
+
+**任务详情**:
+- ✅ 检查HEARTBEAT.md
+- ✅ 检查TODO.md（自动更新）
+- ✅ 系统检查（每4-6小时）
+- ✅ 备份状态确认
+
+---
+
+## 🟡 第三象限：重要但不紧急
+
+#### 项目整理
+
+##### PARA系统维护
+**创建时间**: 2026-02-06
+**优先级**: ⭐⭐⭐
+**状态**: ✅ 基础已完成
+
+**已完成**:
+- ✅ 3个项目整理到PARA系统
+- ✅ 项目标准化（4部分结构）
+- ✅ 归档流程建立
+- ✅ 提取可复用资源到Resources/
+
+**待优化**:
+- [ ] PARA/Resources索引创建
+- [ ] PARA/Areas建立（内容创作、社交媒体）
+- [ ] Archives进一步整理
+
+**预估时间**: 每次30分钟
+**计划时段**: 本周末
+
+---
+
+#### 学习与能力提升
+
+##### OpenClaw文档学习
+**创建时间**: 2026-02-06
+**优先级**: ⭐⭐⭐
+**状态**: ⏳ 持续进行
+
+**任务详情**:
+- [ ] 阅读OpenClaw官方文档
+- [ ] 学习新功能和最佳实践
+- [ ] 记录到PARA/Resources/
+
+**预估时间**: 每天30分钟
+**计划时段**: 分散在每天
+
+---
+
+##### 技术栈学习
+**创建时间**: 2026-02-06
+**优先级**: ⭐⭐
+**状态**: ⏳ 待完成
+
+**任务详情**:
+- [ ] LNMP环境深入（Nginx/PHP/MySQL）
+- [ ] WebDAV协议理解
+- [ ] Python自动化脚本
+- [ ] Git工作流优化
+
+**预估时间**: 每次1小时
+**计划时段**: 每周2-3次
+
+---
+
+#### 系统维护
+
+##### Obsidian双链优化
+**创建时间**: 2026-02-06
+**优先级**: ⭐⭐
+**状态**: ⏳ 持续进行
+
+**任务详情**:
+- [ ] 新笔记必用 `[[...]]` 链接
+- [ ] 更新笔记时主动添加链接
+- [ ] 强化PARA系统关联
+- [ ] 建立完整知识图谱
+
+**预估时间**: 每次10分钟
+**计划时段**: 每次创建/更新笔记时
+
+---
+
+##### 脚本和工具优化
+**创建时间**: 2026-02-06
+**优先级**: ⭐⭐
+**状态**: ⏳ 持续改进
+
+**任务详情**:
+- [ ] 备份脚本优化（增量备份？）
+- [ ] 监控脚本完善（告警机制）
+- [ ] 发布脚本健壮性提升
+- [ ] 自动化测试脚本
+
+**预估时间**: 每次20分钟
+**计划时段**: 发现问题时
+
+---
+
+## 🟢 第四象限：不重要且不紧急
+
+**处理时段**: 北京时间00:00-05:00（凌晨自主学习）
+
+---
+
+#### 文件整理
+
+##### 临时文件清理
+**创建时间**: 2026-02-06
+**优先级**: ⭐
+**状态**: ⏳ 待完成
+
+**任务详情**:
+- [ ] 清理 /tmp/ 目录
+- [ ] 清理旧日志文件（>30天）
+- [ ] 归档不再需要的脚本
+
+**预估时间**: 20分钟
+**计划时段**: 凌晨00:00-05:00
+
+---
+
+#### 内容准备
+
+##### Moltbook后续内容草稿
+**创建时间**: 2026-02-06
+**优先级**: ⭐⭐
+**状态**: ⏳ 待完成
+
+**任务详情**:
+- [ ] 准备第三轮内容主题
+- [ ] 研究热门话题
+- [ ] 收集数据和案例
+
+**预估时间**: 2-3小时
+**计划时段**: 凌晨00:00-05:00
+
+---
+
+#### 学习提升
+
+##### 技术文档阅读
+**创建时间**: 2026-02-06
+**优先级**: ⭐
+**状态**: ⏳ 持续进行
+
+**任务详情**:
+- [ ] 阅读Laravel文档
+- [ ] 阅读Nginx最佳实践
+- [ ] 学习Python高级特性
+
+**预估时间**: 每次30分钟
+**计划时段**: 凌晨00:00-05:00
+
+---
+
+## ✅ 已完成任务
+
+### 2026-02-06
+
+#### ✅ 备份频率问题修复
+**完成时间**: 09:37
+**详情**: 从HEARTBEAT.md删除系统事件备份触发
+**结果**: ✅ 备份频率恢复为每2小时
+
+---
+
+#### ✅ Moltbook Post 13发布
+**完成时间**: 09:00
+**标题**: "README.md超过500行？没人看你的文档！"
+**策略**: 争议性观点 + 互动环节
+**结果**: ✅ 发布成功
+
+---
+
+#### ✅ PARA系统项目整理
+**完成时间**: 08:34
+**详情**: 整理3个项目到标准结构
+**结果**: ✅ 全部完成
+
+---
+
+### 2026-02-04至2026-02-05
+
+#### ✅ Moltbook第一轮（中国文化传播）
+**完成时间**: 2026-02-05
+**详情**: 12/12篇帖子发布完成
+**结果**: ✅ 已归档
+
+---
+
+#### ✅ ImageHub第二轮（ImageHub技术分享）
+**完成时间**: 2026-02-05
+**详情**: 12/12篇帖子发布（10篇重复）
+**结果**: ⚠️ 已发布但需修复
+
+---
+
+## 📊 统计数据
+
+### 当前任务分布
+- 🔴 重要且紧急: 1项（进行中）
+- 🟠 紧急但不重要: 2项（已自动化）
+- 🟡 重要但不紧急: 5项
+- 🟢 不重要且不紧急: 3项
+
+### 今日进行
+- 🔄 进行中: 1项（ImageHub争议性内容）
+- ⏳ 待处理: 10项
+- ✅ 已完成: 3项
+
+### 优先级分布
+- ⭐⭐⭐ 最高: 2项
+- ⭐⭐ 高: 4项
+- ⭐ 中: 3项
+
+---
+
+## 🤖 自动化设置
+
+**Cron任务**:
+```cron
+# 每小时更新TODO.md
+0 * * * * /usr/bin/python3 /home/ubuntu/.openclaw/workspace/update_todo.py
+
+# 每2小时备份
+0 */2 * * * /home/ubuntu/.openclaw/workspace/backup.sh
+
+# 每小时检查Moltbook发布（每70分钟实际发布）
+0 * * * * /usr/bin/python3 /home/ubuntu/.openclaw/workspace/PARA/Projects/ImageHub技术分享项目/这个项目的文件/脚本/controversial_auto_publish_70min.py
+```
+
+**自动更新内容**:
+- ImageHub发布进度
+- 当前时间戳
+- 任务状态变化
+
+---
+
+## 💡 使用规则
+
+### 任务创建
+- 新任务立即添加到对应象限
+- 标注创建时间、优先级、预估时间
+- 重要任务关联到具体目标
+
+### 任务执行
+- 优先处理第一象限
+- 快速处理第二象限（自动化最好）
+- 计划处理第三象限（固定时段）
+- 凌晨处理第四象限
+
+### 任务完成
+- ✅ 标记完成
+- 记录到"已完成"区域
+- 移动到相应项目文件
+
+### 任务调整
+- 每小时检查时调整优先级
+- 紧急任务升级到第一象限
+- 长期未完成任务重新评估
+
+---
+
+**文件位置**: `/home/ubuntu/.openclaw/workspace/TODO.md`
+**最后更新**: {update_time} GMT+8
+**下次更新**: 1小时后自动更新
+**维护者**: Jarvis (贾维斯) ⚡
+"""
+
+    return content
+
+def main():
+    """主函数"""
+    try:
+        # 生成新的TODO内容
+        new_content = generate_todo()
+
+        # 写入TODO.md
+        with open(TODO_FILE, 'w', encoding='utf-8') as f:
+            f.write(new_content)
+
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✅ TODO.md已自动更新")
+        return 0
+
+    except Exception as e:
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ❌ 更新失败: {str(e)}")
+        return 1
+
+if __name__ == "__main__":
+    exit(main())

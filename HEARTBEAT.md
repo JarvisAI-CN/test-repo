@@ -12,7 +12,7 @@
 1. 检查 `/tmp/nightly-learning/status` 是否存在且内容为 "pending"
 2. 检查当前时间是否在 00:00-05:00 之间
 3. 如果满足条件：
-   - 读取 `/root/.openclaw/workspace/Zettelkasten/凌晨自主学习计划.md`
+   - 读取 `/home/ubuntu/.openclaw/workspace/Zettelkasten/凌晨自主学习计划.md`
    - 执行学习任务（知识整理、内容准备、学习提升、系统维护）
    - 完成后更新状态为 "completed"
 4. 如果不满足：跳过，继续其他任务
@@ -25,17 +25,18 @@
 ---
 
 ## 自动备份任务
-当收到系统事件"执行备份任务: /root/.openclaw/workspace/backup.sh"时：
-1. 执行备份脚本: `/root/.openclaw/workspace/backup.sh`
-2. 检查备份日志: `tail -20 /var/log/backup_123pan.log`
-3. 如果备份失败，发送告警通知
+**已禁用** - 备份由crontab自动执行（每2小时）
+**Cron设置**: `0 */2 * * * /home/ubuntu/.openclaw/workspace/backup.sh`
+**日志**: `/home/ubuntu/.openclaw/workspace/logs/backup_123pan.log`
 
-## 待办文件检查（每小时）⭐ 新增
+**注意**: 不再响应系统事件的备份请求，避免与crontab重复执行
+
+## 待办文件检查（每次心跳）⭐
 **频率**: 每次心跳时
-**文件位置**: `/root/.openclaw/workspace/TODO.md`
+**文件位置**: `/home/ubuntu/.openclaw/workspace/TODO.md`
 
 **执行步骤**:
-1. 读取 `TODO.md`
+1. 自动更新TODO.md（运行 `update_todo.py`）
 2. 检查"🔴 第一象限：重要且紧急"是否有未完成任务
 3. 如果有，立即处理最紧急的任务
 4. 更新任务状态（完成/进行中）
@@ -47,14 +48,14 @@
 - 🟡 重要但不紧急 → 计划处理
 - 🟢 不重要且不紧急 → 凌晨00:00-05:00处理
 
-**自动检查脚本**: `/root/.openclaw/workspace/check_todo.sh`
+**托底方案**: 每小时cron自动执行（防止心跳忘记更新）
 
 ---
 
 ## 系统检查（每4-6小时执行一次）
 - [ ] 检查123盘挂载状态 (`mount | grep 123pan`)
-- [ ] 检查磁盘空间 (`df -h /mnt/123pan`)
-- [ ] 检查最新备份时间 (`ls -lt /mnt/123pan/备份/ | head -5`)
+- [ ] 检查磁盘空间 (`df -h /home/ubuntu/123pan`)
+- [ ] 检查最新备份时间 (`ls -lt /home/ubuntu/123pan/备份/ | head -5`)
 
 ## 每日学习任务
 
@@ -75,7 +76,7 @@
 
 **时段**: 北京时间凌晨0点到5点
 **目的**: 主人休息时段的自主学习和维护
-**详情**: `/root/.openclaw/workspace/Zettelkasten/凌晨自主学习计划.md`
+**详情**: `/home/ubuntu/.openclaw/workspace/Zettelkasten/凌晨自主学习计划.md`
 
 **主要任务**:
 - 知识整理（PARA系统维护）
@@ -93,7 +94,7 @@
 
 **额度周期**: 每5小时滚动刷新
 **检测频率**: 每30分钟检查一次（约每次心跳）
-**状态文件**: `/root/.openclaw/workspace/quota-status.json`
+**状态文件**: `/home/ubuntu/.openclaw/workspace/quota-status.json`
 
 ### 检查暂停的任务（每30分钟）
 每次心跳时：
@@ -125,12 +126,12 @@
 
 ### 123盘Readme更新 📝
 **更新频率**: 每次心跳时
-**脚本**: `/root/.openclaw/workspace/update_readme.sh`
-**日志**: `/var/log/readme_update.log`
+**脚本**: `/home/ubuntu/.openclaw/workspace/update_readme.sh`
+**日志**: `/home/ubuntu/.openclaw/workspace/logs/readme_update.log`
 
 **执行步骤**:
-1. 运行更新脚本：`bash /root/.openclaw/workspace/update_readme.sh`
-2. 检查日志确认成功：`tail -3 /var/log/readme_update.log`
+1. 运行更新脚本：`bash /home/ubuntu/.openclaw/workspace/update_readme.sh`
+2. 检查日志确认成功：`tail -3 /home/ubuntu/.openclaw/workspace/logs/readme_update.log`
 3. 如果失败，记录错误并通知主人
 
 **更新内容**:
@@ -144,7 +145,7 @@
 ---
 
 ### Obsidian双链优化 🔗
-**状态文件**: `/root/.openclaw/workspace/OBSIDAN-STATUS.md`
+**状态文件**: `/home/ubuntu/.openclaw/workspace/OBSIDAN-STATUS.md`
 
 **每次新对话开始时**:
 1. 读取 `OBSIDAN-STATUS.md`，了解当前进度
@@ -167,7 +168,7 @@
 ---
 
 ### 自建邮件网站项目 🚀
-**项目文件**: `/root/.openclaw/workspace/Zettelkasten/自建邮件网站项目.md`
+**项目文件**: `/home/ubuntu/.openclaw/workspace/Zettelkasten/自建邮件网站项目.md`
 **域名**: mail.dhmip.cn（已解析）
 **技术栈**: PHP + Postfix + Dovecot + MySQL
 **执行时段**: 凌晨 00:00-05:00
@@ -184,3 +185,63 @@
 - [ ] Web界面开发（PHP）
 - [ ] 安全加固（SSL/TLS）
 - [ ] 测试与优化
+
+---
+
+### Moltbook自动互动任务 💬
+**任务文件**: `/home/ubuntu/.openclaw/workspace/MOLTBOOK_AUTO_TASK.md`
+**脚本**: `moltbook_positive_posts.py`
+**频率**: 每30分钟 (Cron: `*/30 * * * *`)
+
+**任务目标**:
+- 每30分钟发布积极正向高质量的内容
+- 优先回复新帖子
+- 保持社区活跃度
+
+**内容主题**:
+- AI与技术
+- 学习与成长
+- 开源与社区
+- 创新与思维
+- 数据与分析
+
+**执行方式**:
+- Python脚本自动发布
+- 6个预置高质量模板
+- 随机选择，避免重复
+
+**日志位置**: `/home/ubuntu/.openclaw/workspace/moltbook_replies.log`
+
+---
+
+### Moltbook质量保证任务 ✅
+**任务文件**: `/home/ubuntu/.openclaw/workspace/MOLTBOOK_QUALITY_ASSURANCE.md`
+**脚本**: `moltbook_quality_check.py`, `moltbook_verify_simple.py`
+**频率**: 每日凌晨 02:00 (Cron: `0 2 * * *`)
+
+**任务目标**:
+- 检查已发布帖子的质量
+- 检测重复内容
+- 生成质量报告
+- 发现问题立即通知
+
+**检查内容**:
+- 内容长度（>200字符）
+- 占位符检测（"待准备"）
+- 重复内容检测（哈希比对）
+- 标题验证
+- 异常模式检测
+
+**执行方式**:
+```bash
+# 每日质量检查
+python3 /home/ubuntu/.openclaw/workspace/moltbook_quality_check.py report
+
+# 快速检查
+python3 /home/ubuntu/.openclaw/workspace/moltbook_quality_check.py check
+```
+
+**日志位置**:
+- 质量日志: `/home/ubuntu/.openclaw/workspace/moltbook_quality.log`
+- 验证日志: `/home/ubuntu/.openclaw/workspace/moltbook_verify.log`
+- 质量报告: `/home/ubuntu/.openclaw/workspace/moltbook_quality_report.json`
